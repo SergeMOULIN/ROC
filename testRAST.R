@@ -10,8 +10,7 @@
 # This database, named "Exeample_1" is a part of the classical "Iris" database.
 # The columns are not correcty sorted here (every setosa then evey versicolor). Thus it is not necessary to defined an input "y".
 #
-res = rast('data/example1.txt',2,8,8,'setosa','versicolor')
-res = rast('data/example1.txt',2,8,8,'setosa','versicolor',nb_of_nonzero = TRUE)
+res = rast('example1.txt',2,8,8,'setosa','versicolor')
 #
 # The output of the fonction is the table:
 #
@@ -35,4 +34,4 @@ res = rast('data/example1.txt',2,8,8,'setosa','versicolor',nb_of_nonzero = TRUE)
 # 4	Petal.Width	0,2	0,2	0,2	0,2	1,4	1,5	1,5	1,3	0,2	0,4	0,3	0,2	1,5	1,3	1,6	1
 #
 y  = c(rep(0,4),rep(1,4),rep(0,4),rep(1,4))
-res = rast('data/example2.txt',2,8,8,'setosa','versicolor',y, nom_output = "ROC_table_2.xls")
+res = rast('example2.txt',2,8,8,'setosa','versicolor',y, nom_output = "ROC_table_2.xls")
