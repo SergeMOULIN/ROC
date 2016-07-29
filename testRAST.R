@@ -35,4 +35,4 @@ res = rast('data/example1.txt',2,8,8,'setosa','versicolor',nb_of_nonzero = TRUE)
 # 4	Petal.Width	0,2	0,2	0,2	0,2	1,4	1,5	1,5	1,3	0,2	0,4	0,3	0,2	1,5	1,3	1,6	1
 #
 y  = c(rep(0,4),rep(1,4),rep(0,4),rep(1,4))
-res = rast('data/example2.txt',1,8,8,'setosa','versicolor',y, nom_output = "ROC_table_2.xls")
+res = rast('data/example2.txt',2,8,8,'setosa','versicolor',y, nom_output = "ROC_table_2.xls")
