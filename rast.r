@@ -211,7 +211,7 @@ ROC_base = function(X,a,m,n,cat0,cat1,y,nb_of_nonzero)
 #'
 #' Import your data,  provied a table
 #'
-#' @param mane_data : The name of your database (input).
+#' @param name_data : The name of your database (input).
 #' @param a : The number of descriptives collumns. (conf)
 #' @param m : The number of subjects from the first categorie.
 #' @param n : The number of subjects from the second categorie.
