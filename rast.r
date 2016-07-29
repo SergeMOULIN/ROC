@@ -5,39 +5,40 @@
 #' @param x: Vector that contains the value of the subjects for the given quantitative variable.
 #' @param m: The number of subjects from the first category.
 #' @param n: The number of subjects from the second category.
-#' @param  cat0 : Name of the first category.
+#' @param cat0 : Name of the first category.
 #' @param cat1: Name of the second category.
-#' @param y: Vector that contains the value of the subjects for the given binary variable. y is defined as follows: y[i] = 0 if the subject i is in the first category
+#' @param y: Vector that contains the value of the subjects for the given binary variable. 
+#' y is defined as follows: y[i] = 0 if the subject i is in the first category
 #' and y[i] = 1 if the subject i is in the second category.
 #' @return "threshold_inf" and "threshold_sup": The two consecutive values of the quantitative variable such as any cut-off taken in the interval
 #'  [threshold_inf" , "threshold_sup] maximize the sum between sensitivity and specificity.
 #' @return threshold: Mean between threshold_inf" and "threshold_sup.  
-#' @return Preference: The catégorie considered as positive in the analyse. #In other terms, the categorie that is
-#' @return True positive rate: Proportion of
-#' @return True negative rate:
-#' @return Sum true positive and true negative: Sum true positive and true negative
+#' @return Preference: The category considered as positive in the analysis. In other terms, the category that is 
+#' mostly above the threshold. 
+#' @return True positive rate: The proportion of elements of the postitive category that are above the threshold.
+#' @return True negative rate: The proportion of elements of the negative category that are below the threshold.
+#' @return Sum true positive and true negative: Sum of true positive rate and true negative rate.
 #' @return Well classified subjects: well classified subjects
 #' @return AUC: Area under the curve.
-#' @return delta_norm: Difference  
+#' @return delta_norm: Difference between threshold_inf and threshold_sup after normalization of x.   
 ROC_ligne = function(x,m,n,cat0,cat1,y)
     {
     Norm = scale(x) #  Normalization. 
-    vrai_pos = n # La proportion d'éléments de la categorie 1 au dessus du seuil (c'est bien).
-    vrai_neg = 0 # La proportion d'éléments de la catégorie 0 au dessous du seuil (c'est bien).
-    faux_pos = m # La proportion d'éléments de la categorie 0 au dessus du seuil (pas bien).
-    faux_neg = 0 # La proportion d'éléments élément de la catégorie 1 en dessous du seuil (pas bien).
-
+    vrai_pos = n # The proportion of elements of the positive category that are above the threshold.
+    vrai_neg = 0 # The proportion of elements of the negative category that are below the threshold.
+    faux_pos = m # The proportion of elements of the negative category that are above the threshold.
+    faux_neg = 0 # The proportion of elements of the positive category that are below the threshold.
     indice = order(x)
     for (i in 1:(m+n))
         {
-        if (y[indice[i]] == 0)  # C'est bien.
+        if (y[indice[i]] == 0)  
             {
             vrai_pos  = c(vrai_pos, vrai_pos[i])
             vrai_neg =  c(vrai_neg, vrai_neg[i]+1)
             faux_pos =  c(faux_pos, faux_pos[i]-1)
             faux_neg =  c(faux_neg, faux_neg[i])
             }
-        if (y[indice[i]] == 1) # C'est pas bien
+        if (y[indice[i]] == 1) 
             {
             vrai_pos = c(vrai_pos, vrai_pos[i]-1)
             vrai_neg = c(vrai_neg, vrai_neg[i])
@@ -47,7 +48,7 @@ ROC_ligne = function(x,m,n,cat0,cat1,y)
         if (i > 1)
             {
             k = 1
-            while (x[indice[(i-k)]] == x[indice[i]]) # & (i-k) >= 1) # point interessant ici... Il faut executer la boucle si i-k = 1 mais il ne faut pas verifier la condition si i-k = 0.
+            while (x[indice[(i-k)]] == x[indice[i]]) # & (i-k) >= 1) 
                 {
                 vrai_pos[i+1-k] = vrai_pos[i+1]
                 vrai_neg[i+1-k] = vrai_neg[i+1]
@@ -128,8 +129,7 @@ ROC_ligne = function(x,m,n,cat0,cat1,y)
         vrai_neg_seuil = vrai_neg[k]
         bien_classe = vrai_neg[k] * n + vrai_pos[k] * m
         tot_seuil = vrai_neg_seuil + vrai_pos_seuil
-        #return [vrai_pos,vrai_neg,faux_pos,tot,AUC,delta_norm,seuil,pref,vrai_pos_seuil,vrai_neg_seuil,tot_seuil,bien_classe,seuil_inf,seuil_sup]
-        }
+         }
     if (AUC == 0.5 & tot_seuil == 1 & Min == 1)
         {
         pref = "neutre"
@@ -143,9 +143,9 @@ ROC_ligne = function(x,m,n,cat0,cat1,y)
 
 non_nul = function(X,y)
   {
-  n = dim(X)[1]
-  res =  matrix (rep(0, 2*n), n, 2)
-  for (i in 1:n)
+  N = dim(X)[1]
+  res =  matrix (rep(0, 2*N), N, 2)
+  for (i in 1:N)
     {
     x = X[i,]
     for (j in 1:length(x))
@@ -209,10 +209,11 @@ ROC_base = function(X,a,m,n,cat0,cat1,y,nb_of_nonzero)
 
 #' rast:ROC analysis sorted table
 #'
-#' Import your data,  provied a table
+#' Import your data. Compute a ROC analysis for each quantitative variable of the database. Meet all these results in the same table. 
+#' Sort this table to show the most discriminating variables and export this table in excel.  
 #'
 #' @param name_data : The name of your database (input).
-#' @param a : The number of descriptives collumns. (conf)
+#' @param a : The number of descriptives collumns. (see exemple)
 #' @param m : The number of subjects from the first categorie.
 #' @param n : The number of subjects from the second categorie.
 #' @param cat0 : Name of the first categorie.
@@ -220,22 +221,24 @@ ROC_base = function(X,a,m,n,cat0,cat1,y,nb_of_nonzero)
 #' @param y: Optional vector indicating which column corresponds to category 0 and which column corresponds to category 1. 
 #' By default, if no value is provided for y, it is assumed that the columns between (a + 1) and (a + m) correspond to category 0 
 #' and the n following columns correspond to category 1.
-#' @param nom_output : nom_output = "ROC_table.xls"
-#' @param nb_of_nonzero : Optional parameter. Write nb_of_nonzero = TRUE if you want to get the number of nonzero subjets in each categrorie for every quantitative variables.
+#' @param name_output : Optional parameter. The name of the excel table returned. By default, name_output = "ROC_table.xls"
+#' @param nb_of_nonzero : Optional parameter. Write nb_of_nonzero = TRUE if you want to get the number of nonzero subjets 
+#' in each categrorie for every quantitative variables.
 #' @return "threshold_inf" and "threshold_sup": The two consecutive values of the quantitative variable such as any cut-off taken in the interval
 #'  [threshold_inf" , "threshold_sup] maximize the sum between sensitivity and specificity.
-#' @return threshold:
-#' @return Preference: The catégorie considered as positive in the analyse. #In other terms, the categorie that is
-#' @return True positive rate: Proportion of
-#' @return True negative rate:
-#' @return Sum true positive and true negative:
-#' @return well classified subjects:
-#' @return AUC:
-#' @return delta_norm:
-#' @return Wilcoxon p-value:
+#' @return threshold: Mean between threshold_inf" and "threshold_sup.  
+#' @return Preference: The category considered as positive in the analysis. In other terms, the category that is 
+#' mostly above the threshold. 
+#' @return True positive rate: The proportion of elements of the postitive category that are above the threshold.
+#' @return True negative rate: The proportion of elements of the negative category that are below the threshold.
+#' @return Sum true positive and true negative: Sum of true positive rate and true negative rate.
+#' @return Well classified subjects: well classified subjects
+#' @return AUC: Area under the curve.
+#' @return delta_norm: Difference between threshold_inf and threshold_sup after normalization of x.   
+#' @return Wilcoxon p-value: Wilcoxon p-value
 #' @example tests/testRAST.R
 #' @export
-rast = function(name_data,a,m,n,cat0,cat1,y='sorted', nom_output = "ROC_table.xls",nb_of_nonzero = FALSE)
+rast = function(name_data,a,m,n,cat0,cat1,y='sorted', name_output = "ROC_table.xls",nb_of_nonzero = FALSE)
     {
     X = read.table(name_data,header = TRUE)
     res = ROC_base(X,a,m,n,cat0,cat1,y,nb_of_nonzero)
@@ -245,6 +248,6 @@ rast = function(name_data,a,m,n,cat0,cat1,y='sorted', nom_output = "ROC_table.xl
     if (nb_of_nonzero == TRUE)
     {collumn_names = c(collumn_names, paste('Number of nonzero subjects in ' , cat0), paste('Number of nonzero subjects in ' , cat1))}
     colnames(res)  = collumn_names
-    write.table(res,file=nom_output,sep="\t",row.names=FALSE)
+    write.table(res,file=name_output,sep="\t",row.names=FALSE)
     return(res)
     }
